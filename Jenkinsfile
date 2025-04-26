@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Clone Code') {
             steps {
-                git url: 'https://github.com/farhanfist10/backend-maven.git', branch: 'main'
+                git url: 'https://github.com/farhanfist10/final-maven.git', branch: 'main'
             }
         }
 
