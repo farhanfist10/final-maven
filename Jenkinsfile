@@ -27,13 +27,13 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                sh 'set -e && docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
 
         stage('Tag Docker Image for Nexus') {
             steps {
-                sh 'docker tag $IMAGE_NAME:$IMAGE_TAG $NEXUS_IP:$NEXUS_PORT/$IMAGE_NAME:$IMAGE_TAG'
+                sh 'docker tag $IMAGE_NAME:$IMAGE_TAG $NEXUS_IP:$NEXUS_PORT/repository/docker-private/$IMAGE_NAME:$IMAGE_TAG'
             }
         }
 
@@ -49,14 +49,15 @@ pipeline {
 
         stage('Push Docker Image to Nexus') {
             steps {
-                sh 'docker push $NEXUS_IP:$NEXUS_PORT/$IMAGE_NAME:$IMAGE_TAG'
+                sh 'docker push $NEXUS_IP:$NEXUS_PORT/repository/docker-private/$IMAGE_NAME:$IMAGE_TAG'
             }
         }
 
         stage('Run Container (optional)') {
             steps {
                 sh 'docker rm -f backend-ci-container || true'
-                sh 'docker run -d -p 8080:8080 --name backend-ci-container $NEXUS_IP:$NEXUS_PORT/$IMAGE_NAME:$IMAGE_TAG'
+                sh 'docker pull $NEXUS_IP:$NEXUS_PORT/repository/docker-private/$IMAGE_NAME:$IMAGE_TAG'
+                sh 'docker run -d -p 8080:8080 --name backend-ci-container $NEXUS_IP:$NEXUS_PORT/repository/docker-private/$IMAGE_NAME:$IMAGE_TAG'
             }
         }
     }
