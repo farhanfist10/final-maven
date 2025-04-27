@@ -37,6 +37,16 @@ pipeline {
             }
         }
 
+        stage('Docker Login to Nexus') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "echo $DOCKER_PASSWORD | docker login $NEXUS_IP:$NEXUS_PORT -u $DOCKER_USERNAME --password-stdin"
+                    }
+                }
+            }
+        }
+
         stage('Push Docker Image to Nexus') {
             steps {
                 sh 'docker push $NEXUS_IP:$NEXUS_PORT/$IMAGE_NAME:$IMAGE_TAG'
